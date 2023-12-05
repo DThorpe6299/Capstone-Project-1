@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Plan Form</title>
+</head>
+<body>
+    <h1>Enter A Meal Plan!</h1>
+    <form action="/meal_plan" method="POST">
+        {% for field in form
+            if field.widget.input_type !='hidden' %}
+        <label for="diet">Diet:</label>
+        {{ form.diet(class="form-control") }}
+        <br>
+        <label for="timeframe">Timeframe:</label>
+        {{ form.timeframe(class="form-control") }}
+        <br>
+        <label for="target_calories">Target Calories:</label>
+        {{ form.target_calories(class="form-control") }}
+        <br>
+        <label for="exclude">Exclude:</label>
+        {{ form.exclude(class="form-control") }}
+        <br>
+        {% for error in field.errors}
+            {{error}}
+        {% endfor %}
+        <input type="submit" value="Create Meal Plan">
+    {% endfor %}
+    </form>
+</body>
+</html>

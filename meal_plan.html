@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Meal Plan Details{% endblock %}
+{% block content %}
+    <h1>Meal Plan Details</h1>
+    <p>User ID: {{ meal_plan.user_id }}</p>
+    <p>Meal ID: {{ meal_plan.meal_id }}</p>
+    <p>Diet: {{ meal_plan.diet_name }}</p>
+    <form method="POST" action="/meal_plan/{{int:meal_plan_id}}/delete">
+        <input type="submit" value="Delete">
+    </form>
+{% endblock %}

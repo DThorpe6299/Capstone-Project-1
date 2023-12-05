@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %} Login! {% endblock %}
+{% block content %}
+    <form action="/meal_plan" method="POST">
+        {{% form.hidden_tag() %}}
+        {% for field in form 
+            if field.widget.input_type != 'hidden' %}
+        <div>
+            {{ form.username.label }}
+            {{ form.username(size=32) }}
+            {% for error in form.username.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div>
+            {{ form.password.label }}
+            {{ form.password(size=32) }}
+            {% for error in form.password.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div>
+            <input type="submit" value="Login">
+        </div>
+        {% endfor %}
+    </form>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %} Here's Your Meal Plan! {% endblock %}
+{% block content %}
+    <ul>
+        {% for meal in meals %}
+        <li><a href="{{ meal.sourceUrl }}">{{ meal.title }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>Nutrients</h2>
+    <p>Calories: {{ nutrients.calories }}</p>
+    <p>Protein: {{ nutrients.protein }}</p>
+    <p>Fat: {{ nutrients.fat }}</p>
+    <p>Carbohydrates: {{ nutrients.carbohydrates }}</p>
+</body>
+{% endblock %}

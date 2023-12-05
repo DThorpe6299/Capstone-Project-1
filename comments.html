@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %} User Comments {% endblock %}
+
+{% block content %}
+    {% for comment in comments %}
+        <div class="comment">
+            <p>{{ comment.content }}</p>
+            <form method="POST" action="/comments/{{comment_id}}/delete">
+                <input type="submit" value="Delete">
+            </form>
+        </div>
+    {% endfor %}

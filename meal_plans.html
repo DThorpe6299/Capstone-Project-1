@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %} Meal Plans {% endblock %}
+{% block content %}
+<ul>
+    {% for plan in meal_plans %}
+        <a href="/meal_plan/{{meal_plan_id}}"><li>
+            User ID: {{ plan.user_id }} - Meal ID: {{ plan.meal_id }} - Diet: {{ plan.diet_name }}
+        </li></a>
+        <form method="POST" action="/meal_plan/{{int:meal_plan_id}}/delete">
+            <input type="submit" value="Delete">
+        </form>
+    {% endfor %}
+</ul>
+{% endblock %}
