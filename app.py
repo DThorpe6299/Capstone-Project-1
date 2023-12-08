@@ -84,9 +84,17 @@ def edit_user(user_id):
         if form.validate_on_submit():
             username=form.username.data
             email=form.email.data
+            edited_user=User(username=username, email=email)
+            db.session.add(edited_user)
             db.session.commit()
             return redirect(f"/users/{user.id}")
     return render_template('edit_user.html', form=form)
+
+@app.route('/users/<int:user.id>')
+def user(user_id):
+    """Show an instance of a user."""
+    user=User.query.get_or_404(user_id)
+    return render_template('user.html', user=user)
 
 
 
@@ -165,7 +173,7 @@ def delete_meal_plan(meal_plan_id):
     return redirect('/meal_plans')
 
 #Comment handling and form#########################################
-@app.route('comments/new', methods=['GET', 'POST'])
+@app.route('/comments/new', methods=['GET', 'POST'])
 def comment_form():
     """Shows form for a user to add a comment about a dish if they have made it; handles comment submission."""
 
@@ -208,4 +216,4 @@ def delete_comment(comment_id):
     comment=Comment.query.get_or_404(comment_id)
     db.session.delete(comment)
     db.session.commit()
-    return redirect('/')
+    return redirect('/comments')

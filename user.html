@@ -1,10 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %} User List {% endblock %}
+{% block title %} {{user.username}} {% endblock %}
 {% block content %}
+    Username: {{user.username}}
+    Email: {{user.email}}
+    Meal Plans: 
     <ul>
-        {% for user in users %}
-            <a href="/user/{{user.id}}"><li>{{ user.username }}</li>=""></a>
+        {% for plan in meal_plans %}
+            <a href="/meal_plan/{{meal_plan_id}}"><li>
+                User ID: {{ plan.user_id }} - Meal ID: {{ plan.meal_id }} - Diet: {{ plan.diet_name }}
+            </li></a>
+            <form method="POST" action="/meal_plan/{{int:meal_plan_id}}/delete">
+                <input type="submit" value="Delete">
+            </form>
         {% endfor %}
     </ul>
-{% endfor %}
+    <form action="//meal_plan/new" method="get">
+        <input type="submit" value="Make A Meal Plan!">
+    </form>
+    <form action="/logout">
+        <input type="submit" value="Logout">
+{% endblock %}
