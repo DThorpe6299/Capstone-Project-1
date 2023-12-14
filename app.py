@@ -4,7 +4,6 @@ from flask_bcrypt import Bcrypt
 from models import User, Comment, MealPlan, db, connect_db
 from forms import LoginForm, RegisterForm, CommentForm, MealPlanForm, EditUserForm
 from secret import API_Key
-import requests
 apiKey=API_Key
 API_BASE_URL="https://api.spoonacular.com/mealplanner/generate"
 
@@ -15,7 +14,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 with app.app_context():
     connect_db(app)
-    db.create_all
+    db.create_all()
 
 app.config['SECRET_KEY'] = "Diet_Time"
 debug=DebugToolbarExtension(app)
@@ -36,7 +35,8 @@ def login():
         user = User.authenticate(username, pwd)
         if user:
             session['user_id']=user.id
-            return redirect('/meal_plan')
+            app.logger.info(f"User ID in session after login: {session.get('user_id')}")
+            return redirect('/meal_plans')
         else:
             form.username.errors=["Incorrect username/password"]
     return render_template("login.html", form=form)
@@ -49,6 +49,7 @@ def register():
         username = form.username.data
         password = form.password.data
         email = form.email.data
+        print(f"Form data - Username: {username}, Password: {password}, Email: {email}")
 
         existing_user = User.query.filter_by(username=username).first()
         existing_email = User.query.filter_by(email=email).first()
@@ -61,8 +62,8 @@ def register():
             new_user = User(username=username, password=password, email=email)
             db.session.add(new_user)
             db.session.commit()
-
-            return redirect('/login')
+            print(f"New user added: {username}, {email}")
+            return redirect('/meal_plans')
     return render_template('register.html', form=form)
 
 @app.route('/logout')
@@ -90,7 +91,7 @@ def edit_user(user_id):
             return redirect(f"/users/{user.id}")
     return render_template('edit_user.html', form=form)
 
-@app.route('/users/<int:user.id>')
+@app.route('/users/<int:user_id>')
 def user(user_id):
     """Show an instance of a user."""
     user=User.query.get_or_404(user_id)
@@ -99,8 +100,9 @@ def user(user_id):
 
 
 #Meal Plan Functionality#########################################
-@app.route('/meal_plans')
+@app.route('/meal_plans', methods=['POST'])
 def meal_plans():
+    app.logger.info(f"Received {request.method} request for meal plans")
     meal_plans=MealPlan.query.limit(25).all()
     return render_template('meal_plans.html', meal_plans=meal_plans)
 
@@ -110,7 +112,7 @@ def get_meal_plans(meal_plan_id):
     meal_plan= MealPlan.query.get_or_404(meal_plan_id)
     return render_template('meal_plan.html', meal_plan=meal_plan)
 
-@app.route('/meal_plan/new', methods=['GET', 'POST'])
+@app.route('/meal_plans/new', methods=['GET', 'POST'])
 def generate_meal_plan():
     if 'user_id' not in session:
         flash("Please login to continue.", 'danger')
@@ -161,7 +163,7 @@ def generate_meal_plan():
                         return render_template('generated_meal_plan.html', meals=meals, nutrients=nutrients)
     return render_template("meal_plan_form.html", form=form)
 
-@app.route('/meal_plan/<int:meal_plan_id>/delete', methods=['POST'])
+@app.route('/meal_plans/<int:meal_plan_id>/delete', methods=['POST'])
 def delete_meal_plan(meal_plan_id):
     """Delete a meal plan."""
     if 'user_id' not in session:
@@ -217,3 +219,5 @@ def delete_comment(comment_id):
     db.session.delete(comment)
     db.session.commit()
     return redirect('/comments')
+
+app.run(debug=True)

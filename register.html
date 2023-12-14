@@ -2,10 +2,12 @@
 
 {% block title %} Register {% endblock %}
 {% block content %}
-<form action="/login" method="POST">
-    {{% form.hidden_tag() %}}
-        {% for field in form 
-            if field.widget.input_type != 'hidden' %}
+<form action="/login" method="GET">
+    {{ form.hidden_tag() }}
+            <input type="submit" value="Login">        
+</form>
+<form action="/meal_plans" method="POST">
+    {{ form.hidden_tag() }}
     <div>
         {{ form.username.label }}
         {{ form.username(size=32) }}

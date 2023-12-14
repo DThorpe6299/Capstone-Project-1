@@ -1,8 +1,11 @@
 from wtforms_alchemy import model_form_factory
-from wtforms_alchemy.fields import StringField, PasswordField, SelectField, TextAreaField, BooleanField, IntegerField
-from wtforms_alchemy.validators import Unique, DataRequired, InputRequired, Length
+from wtforms_alchemy.fields import StringField, SelectField
+from wtforms_components.fields.html5 import IntegerField, StringField
+from wtforms import BooleanField, PasswordField, TextAreaField
+from wtforms.validators import DataRequired, InputRequired, Length
+from wtforms_alchemy.validators import Unique
 from flask_wtf import FlaskForm
-from models import User, Meal, Comment, MealPlan
+from models import User, Meal, Comment, MealPlan, db
 
 BaseModelForm = model_form_factory(FlaskForm)
 

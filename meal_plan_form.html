@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Enter A Meal Plan!</h1>
-    <form action="/meal_plan" method="POST">
+    <form action="/meal_plans" method="POST">
         {% for field in form
             if field.widget.input_type !='hidden' %}
         <label for="diet">Diet:</label>
