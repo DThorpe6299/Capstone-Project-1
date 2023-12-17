@@ -7,26 +7,18 @@
 </head>
 <body>
     <h1>Enter A Meal Plan!</h1>
-    <form action="/meal_plans" method="POST">
-        {% for field in form
-            if field.widget.input_type !='hidden' %}
-        <label for="diet">Diet:</label>
-        {{ form.diet(class="form-control") }}
-        <br>
-        <label for="timeframe">Timeframe:</label>
-        {{ form.timeframe(class="form-control") }}
-        <br>
-        <label for="target_calories">Target Calories:</label>
-        {{ form.target_calories(class="form-control") }}
-        <br>
-        <label for="exclude">Exclude:</label>
-        {{ form.exclude(class="form-control") }}
-        <br>
-        {% for error in field.errors}
-            {{error}}
-        {% endfor %}
-        <input type="submit" value="Create Meal Plan">
+    <form action="/meal_plans/new" method="POST">
+        {% for field in form %}
+        {% if field.widget.input_type != 'hidden' %}
+            <label for="{{ field.id }}">{{ field.label }}</label>
+            {{ field(class="form-control") }}
+            <br>
+            {% for error in field.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        {% endif %}
     {% endfor %}
+    <input type="submit" value="Create Meal Plan">
     </form>
     <form action="/logout">
         <input type="submit" value="Logout">

@@ -3,21 +3,24 @@
 {% block content %}
     <ul>
         {% for meal in meals %}
-        <li><a href="{{ meal.sourceUrl }}">{{ meal.title }}</a></li>
-        
-            </ul>
-            <h2>Nutrients</h2>
-            <p>Calories: {{ nutrients.calories }}</p>
-            <p>Protein: {{ nutrients.protein }}</p>
-            <p>Fat: {{ nutrients.fat }}</p>
-            <p>Carbohydrates: {{ nutrients.carbohydrates }}</p>
-            <form method="POST" action="/meal_plan/{{int:meal_plan_id}}/delete">
-                <input type="submit" value="Delete">
-            </form>
+            <li>
+                <a href="{{ meal.sourceUrl }}">{{ meal.title }}</a>
+                <h2>Nutrients</h2>
+                <p>Calories: {{ meal.nutrients.calories }}</p>
+                <p>Protein: {{ meal.nutrients.protein }}</p>
+                <p>Fat: {{ meal.nutrients.fat }}</p>
+                <p>Carbohydrates: {{ meal.nutrients.carbohydrates }}</p>
+                <form method="POST" action="/meal_plan/{{ meal.id }}/delete">
+                    <input type="submit" value="Delete">
+                </form>
+            </li>
         {% endfor %}
-    <form action="//meal_plan/new" method="get">
+    </ul>
+    
+    <form action="/meal_plans/new" method="get">
         <input type="submit" value="Make A Meal Plan!">
     </form>
     <form action="/logout">
         <input type="submit" value="Logout">
+    </form>
 {% endblock %}
