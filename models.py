@@ -28,25 +28,29 @@ class User(db.Model):
             
             traceback.print_exc()
             db.session.rollback()
-            return None  
+            return e  
     
     @classmethod
     def authenticate(cls, username, pwd):
         """Validate that user exists & password is correct. Return user if valid; else return False."""
 
-        u=User.query.filter_by(username=username).first()
-        if u and bcrypt.check_password_hash(u.password, pwd):
-            return u
-        else:
-            return False
+        user = cls.query.filter_by(username=username).first()
+        print(f"User found: {user}")
+        if user:
+            password_check = bcrypt.check_password_hash(user.password, pwd)
+            print(f"Password check: {password_check}")
+            if password_check:
+                return user
+    
+        return None
         
     __tablename__='users'
 
     id=db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username=db.Column(db.String(50), unique=True, nullable=False)
-    password=db.Column(db.String(50), nullable=False)
+    username=db.Column(db.String(255), unique=True, nullable=False)
+    password=db.Column(db.String(255), nullable=False)
     email=db.Column(db.Text, nullable=False, unique=True)
-    meal_plan_id=db.Column(db.Integer, db.ForeignKey('meal_plans.id'), unique = True)
+    meal_plans = db.relationship('MealPlan', backref='user', lazy=True)
     #meals = db.relationship('Meal', secondary='meal_plans', backref='users', lazy='dynamic')
 
 class Meal(db.Model):
@@ -69,8 +73,8 @@ class Comment(db.Model):
 class MealPlan(db.Model):
     __tablename__ = 'meal_plans'
 
-    id=db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    id=db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), primary_key=True)
     diet = db.Column(db.String(70), nullable=True)
     timeframe = db.Column(db.Enum('day', 'week', name='timeframe'), nullable=False)

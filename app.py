@@ -4,6 +4,8 @@ from flask_bcrypt import Bcrypt
 from models import User, Comment, MealPlan, db, connect_db
 from forms import LoginForm, RegisterForm, CommentForm, MealPlanForm, EditUserForm
 from secret import API_Key
+from flask_migrate import Migrate
+import requests
 apiKey=API_Key
 API_BASE_URL="https://api.spoonacular.com/mealplanner/generate"
 
@@ -11,6 +13,7 @@ app=Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///meal_plan_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
+migrate = Migrate(app, db)
 
 with app.app_context():
     connect_db(app)
@@ -33,6 +36,7 @@ def login():
         pwd=form.password.data
 
         user = User.authenticate(username, pwd)
+        print(f"User object after authenticate: {user}")
         if user:
             session['user_id']=user.id
             app.logger.info(f"User ID in session after login: {session.get('user_id')}")
@@ -59,10 +63,12 @@ def register():
         elif existing_email:
             return render_template('register.html', form=form, error="Email already exists.")
         else:
-            new_user = User(username=username, password=password, email=email)
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            new_user = User(username=username, password=hashed_password, email=email)
             db.session.add(new_user)
             db.session.commit()
-            print(f"New user added: {username}, {email}")
+            session['user_id'] = new_user.id
+            print(f"User ID in session after registration: {session.get('user_id')}")
             return redirect('/meal_plans')
     return render_template('register.html', form=form)
 
@@ -100,10 +106,14 @@ def user(user_id):
 
 
 #Meal Plan Functionality#########################################
-@app.route('/meal_plans', methods=['POST'])
+@app.route('/meal_plans', methods=['GET','POST'])
 def meal_plans():
-    app.logger.info(f"Received {request.method} request for meal plans")
-    meal_plans=MealPlan.query.limit(25).all()
+    if request.method == 'POST':
+        app.logger.info(f"Received {request.method} request for meal plans")
+    else:
+        app.logger.info(f"Received {request.method} request for meal plans")
+
+    meal_plans = MealPlan.query.limit(25).all()
     return render_template('meal_plans.html', meal_plans=meal_plans)
 
 @app.route('/meal_plans/<int:meal_plan_id>', methods=["GET"])
@@ -123,6 +133,12 @@ def generate_meal_plan():
             timeframe = request.form['timeframe']  
             target_calories = request.form['target_calories']  
             exclude = request.form['exclude']
+
+            print(f"Diet: {diet}")  
+            print(f"Timeframe: {timeframe}")  
+            print(f"Target Calories: {target_calories}")  
+            print(f"Exclude: {exclude}")  
+
 
             params = {
                 'apiKey': API_Key,
