@@ -57,10 +57,9 @@ class Meal(db.Model):
     """Meal model."""
     __tablename__='meals'
     id=db.Column(db.Integer, primary_key=True, autoincrement=True)
-    #user_id=db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     in_wishlist=db.Column(db.Boolean, nullable=False, default=False)
     user_made_dish=db.Column(db.Boolean, nullable=False, default=False)
-    #users = db.relationship('User', secondary='meal_plans', backref='meals', lazy='dynamic')
+    
     
 
 class Comment(db.Model):
@@ -68,18 +67,25 @@ class Comment(db.Model):
     __tablename__='comments'
     id=db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    users=db.relationship('User')
+    user=db.relationship('User', backref='comments')
 
 class MealPlan(db.Model):
     __tablename__ = 'meal_plans'
 
-    id=db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), primary_key=True)
+    meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
     diet = db.Column(db.String(70), nullable=True)
     timeframe = db.Column(db.Enum('day', 'week', name='timeframe'), nullable=False)
     target_calories = db.Column(db.Integer, nullable=False)
     exclude = db.Column(db.Text, nullable=True)
+    calories = db.Column(db.Float, nullable=False)
+    fat = db.Column(db.Float, nullable=False)
+    protein = db.Column(db.Float, nullable=False)
+    carbohydrates = db.Column(db.Float, nullable=False)
+
+    meals = db.relationship('Meal', backref='meal_plan', cascade='all,delete', passive_deletes=True, foreign_keys="[MealPlan.meal_id]")
+
 
     
     #user = db.relationship("User", backref='meal_plans')

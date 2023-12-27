@@ -3,17 +3,20 @@
 {% block content %}
     <ul>
         {% for plan in meal_plans %}
-            <a href="/meal_plans/{{meal_plan_id}}"><li>
-                User ID: {{ plan.user_id }} - Meal ID: {{ plan.meal_id }} - Diet: {{ plan.diet_name }}
-            </li></a>
-            <form method="POST" action="/meal_plans/{{ meal_plan_id | int }}/delete">
-                <input type="submit" value="Delete">
-            </form>
+            <li>
+                <a href="/meal_plans/{{ plan.id }}">
+                    Username: {{ username }} - Meal Plan ID: {{ plan.meal_id }} - Diet: {{ plan.diet }}
+                </a>
+                <form method="POST" action="/meal_plans/{{ plan.id }}/delete">
+                    <input type="submit" value="Delete">
+                </form>
+            </li>
         {% endfor %}
         <form action="/meal_plans/new" method="get">
             <input type="submit" value="Make A Meal Plan!">
         </form>
         <form action="/logout">
             <input type="submit" value="Logout">
-
+        </form>
+    </ul>
 {% endblock %}

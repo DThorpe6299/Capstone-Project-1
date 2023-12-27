@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, request, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_bcrypt import Bcrypt
-from models import User, Comment, MealPlan, db, connect_db
+from models import User, Comment, Meal, MealPlan, db, connect_db
 from forms import LoginForm, RegisterForm, CommentForm, MealPlanForm, EditUserForm
 from secret import API_Key
 from flask_migrate import Migrate
@@ -100,8 +100,11 @@ def edit_user(user_id):
 @app.route('/users/<int:user_id>')
 def user(user_id):
     """Show an instance of a user."""
-    user=User.query.get_or_404(user_id)
-    return render_template('user.html', user=user)
+    if "user_id" in session:
+        user=User.query.get_or_404(user_id)
+        return render_template('user.html', user=user)
+    flash("Please login to continue.", 'danger')
+    return redirect('/login')
 
 
 
@@ -112,27 +115,47 @@ def meal_plans():
         app.logger.info(f"Received {request.method} request for meal plans")
     else:
         app.logger.info(f"Received {request.method} request for meal plans")
-
-    meal_plans = MealPlan.query.limit(25).all()
-    return render_template('meal_plans.html', meal_plans=meal_plans)
+    
+    user_id=session['user_id']
+    current_user=User.query.get_or_404(user_id)
+    username=current_user.username
+    meal_plans = MealPlan.query.filter_by(user_id=user_id).limit(25).all()
+    return render_template('meal_plans.html', meal_plans=meal_plans, username=username)
 
 @app.route('/meal_plans/<int:meal_plan_id>', methods=["GET"])
 def get_meal_plans(meal_plan_id):
     """Show a meal plan."""
     meal_plan= MealPlan.query.get_or_404(meal_plan_id)
-    return render_template('meal_plan.html', meal_plan=meal_plan)
+    user_id=session['user_id']
+    current_user=User.query.get_or_404(user_id)
+    username=current_user.username
+
+    nutrients = {
+        'calories': meal_plan.calories,
+        'protein': meal_plan.protein,
+        'fat': meal_plan.fat,
+        'carbohydrates': meal_plan.carbohydrates
+    }
+
+    return render_template('meal_plan.html', meal_plan=meal_plan, username=username, nutrients=nutrients)
 
 @app.route('/meal_plans/new', methods=['GET', 'POST'])
 def generate_meal_plan():
+    print('meal plan form')
     if 'user_id' not in session:
+        print('user not in session')
         flash("Please login to continue.", 'danger')
         return redirect("/login")
     form=MealPlanForm()
+    print(form.validate_on_submit())
+    print('form for meal plan')
     if form.validate_on_submit():
+            print('meal plan validation in progress')
             diet = request.form['diet']  
             timeframe = request.form['timeframe']  
             target_calories = request.form['target_calories']  
             exclude = request.form['exclude']
+            print('form params')
 
             print(f"Diet: {diet}")  
             print(f"Timeframe: {timeframe}")  
@@ -143,40 +166,109 @@ def generate_meal_plan():
             params = {
                 'apiKey': API_Key,
                 'diet': diet,
-                'timeframe': timeframe,
+                'timeFrame': timeframe,
                 'targetCalories': target_calories,
                 'exclude': exclude
             }
-
+            user_id = session['user_id']
+            
             response = requests.get(API_BASE_URL, params=params)
-
+            print(response.status_code)
             if response.status_code == 200:
-                data = response.json()  
-                if "meals" in data and "nutrients" in data:
+                data = response.json()
+                print(data)  
+                print('is true')
+
+                
+                print(timeframe)
+                if timeframe == 'day':
+                    print("Day meal plan:")
+                    print("Meals:")
                     meals = data["meals"]
                     nutrients = data["nutrients"]
+                    for meal in meals:
+                        print(f"{meal['title']}: {meal['sourceUrl']}")
+                    print("Nutrients:")
+                    print(f"Calories: {nutrients['calories']}")
+                    print(f"Protein: {nutrients['protein']}")
+                    print(f"Fat: {nutrients['fat']}")
+                    print(f"Carbohydrates: {nutrients['carbohydrates']}")
+                    
+                    for meal in meals:
+                        new_meal = Meal(
+                            in_wishlist=False,
+                            user_made_dish=False
+                        )
+                        db.session.add(new_meal)
+                        db.session.flush()  
+                        meal_id = new_meal.id
 
-                    if params['timeframe'] == 'day':
-                        print("Day meal plan:")
+                        
+                        meal_plan = MealPlan(
+                            user_id=user_id,
+                            meal_id=meal_id,
+                            diet=diet,
+                            timeframe=timeframe,
+                            target_calories=target_calories,
+                            exclude=exclude,
+                            calories=nutrients.get('calories', 0),
+                            protein=nutrients.get('protein', 0),
+                            fat=nutrients.get('fat', 0),
+                            carbohydrates=nutrients.get('carbohydrates', 0)
+                            )
+                        db.session.add(meal_plan)
+
+                    db.session.commit()
+                    return render_template('day_generated_meal_plan.html', meals=meals, nutrients=nutrients)
+                else:
+                    print("Week meal plan:")
+                    week_data = response.json()
+                    meals={}
+
+                    for day, data in week_data['week'].items():
+                        day_of_week = day.capitalize()
+                        meals[day_of_week] = {
+                            'meals': data.get('meals', []),
+                            'nutrients': data.get('nutrients', {})
+                            }
+                        nutrients = data.get('nutrients', {})
+                        
+                        # Use the accessed data as needed for each day
+                        print(f"Day: {day_of_week}")
                         print("Meals:")
                         for meal in meals:
-                            print(f"{meal['title']}: {meal['sourceUrl']}")
-                        print("Nutrients:")
-                        print(f"Calories: {nutrients['calories']}")
-                        print(f"Protein: {nutrients['protein']}")
-                        print(f"Fat: {nutrients['fat']}")
-                        print(f"Carbohydrates: {nutrients['carbohydrates']}")
-                        return render_template('generated_meal_plan.html', meals=meals, nutrients=nutrients)
-                    else:
-                        print("Week meal plan:")
-                        for day, details in data['week'].items():
-                            print(f"{day.capitalize()} meal plan:")
-                        print("Nutrients:")
-                        print(f"Calories: {details['nutrients']['calories']}")
-                        print(f"Protein: {details['nutrients']['protein']}")
-                        print(f"Fat: {details['nutrients']['fat']}")
-                        print(f"Carbohydrates: {details['nutrients']['carbohydrates']}")
-                        return render_template('generated_meal_plan.html', meals=meals, nutrients=nutrients)
+                        
+                            print("Nutrients:")
+                            print(f"Calories: {nutrients.get('calories', 0)}")
+                            print(f"Protein: {nutrients.get('protein', 0)}")
+                            print(f"Fat: {nutrients.get('fat', 0)}")
+                            print(f"Carbohydrates: {nutrients.get('carbohydrates', 0)}")
+                        for meal in meals:
+                            new_meal = Meal(
+                                in_wishlist=False,
+                                user_made_dish=False
+                            )
+                            db.session.add(new_meal)
+                            db.session.flush()
+                            meal_id = new_meal.id
+
+                            meal_plan = MealPlan(
+                            user_id=user_id,
+                            meal_id=meal_id,
+                            diet=diet,
+                            timeframe=timeframe,
+                            target_calories=target_calories,
+                            exclude=exclude,
+                            calories=nutrients.get('calories', 0),
+                            protein=nutrients.get('protein', 0),
+                            fat=nutrients.get('fat', 0),
+                            carbohydrates=nutrients.get('carbohydrates', 0)
+                            )
+                            db.session.add(meal_plan)
+
+                    db.session.commit()
+                    return render_template('week_generated_meal_plan.html', meals=meals)
+
     return render_template("meal_plan_form.html", form=form)
 
 @app.route('/meal_plans/<int:meal_plan_id>/delete', methods=['POST'])
@@ -185,31 +277,42 @@ def delete_meal_plan(meal_plan_id):
     if 'user_id' not in session:
         flash("Please login to continue.", 'danger')
         return redirect("/login")
-    meal_plan=MealPlan.query.get_or_404(meal_plan_id)
+    
+    meal_plan = MealPlan.query.get_or_404(meal_plan_id)
+
+
     db.session.delete(meal_plan)
+
     db.session.commit()
+
     return redirect('/meal_plans')
 
 #Comment handling and form#########################################
-@app.route('/comments/new', methods=['GET', 'POST'])
-def comment_form():
-    """Shows form for a user to add a comment about a dish if they have made it; handles comment submission."""
-
+@app.route('/meals/<int:meal_id>/comments/new', methods=['GET', 'POST'])
+def comment_form(meal_id):
     if 'user_id' not in session:
         flash("Please login to continue.", 'danger')
         return redirect("/login")
-    user = User.query.get(session['user_id'])
-    if not user.user_made_dish:
-        flash("You can only comment on dishes you've made.", 'warning')
-        return redirect('/meal_plans')
-    form=CommentForm()
-    if form.validate_on_submit():
-        content=form.content.data
-        new_comment=Comment(content=content)
-        db.session.add(new_comment)
-        db.session.commit()
-        return redirect('/comments')
-    return render_template('comment_form.html', form=form)
+
+    user_id = session['user_id']
+
+    # Query the Meal model to check if the user has made this dish
+    meal = Meal.query.filter_by(id=meal_id, user_id=user_id).first()
+
+    if meal:  # Check if the meal exists and the user has made it
+        form = CommentForm()
+        if form.validate_on_submit():
+            content = form.content.data
+            new_comment = Comment(content=content, user_id=user_id, meal_id=meal_id, meal=meal)
+            db.session.add(new_comment)
+            db.session.commit()
+            return redirect('/comments')
+
+        return render_template('comment_form.html', form=form)
+
+    flash("You can only comment on dishes you've made.", 'warning')
+    return redirect('/meal_plans')
+
 
 @app.route('/comments')
 def show_comments():

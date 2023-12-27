@@ -8,19 +8,21 @@
 <body>
     <h1>Enter A Meal Plan!</h1>
     <form action="/meal_plans/new" method="POST">
+        {{ form.hidden_tag() }}
         {% for field in form %}
-        {% if field.widget.input_type != 'hidden' %}
+        <!--{% if field.widget.input_type != 'hidden' %}-->
             <label for="{{ field.id }}">{{ field.label }}</label>
             {{ field(class="form-control") }}
             <br>
             {% for error in field.errors %}
                 <span class="error">{{ error }}</span>
             {% endfor %}
-        {% endif %}
+        <!--{% endif %}-->
     {% endfor %}
     <input type="submit" value="Create Meal Plan">
     </form>
     <form action="/logout">
         <input type="submit" value="Logout">
+    </form>
 </body>
 </html>

@@ -3,16 +3,17 @@
 {% block title %} What did you think? {% endblock %}
 
 {% block content %}
-    <form method="POST" action="/comments">
-        {{% form.hidden_tag() %}}
-        {% for field in form 
-            if field.widget.input_type != 'hidden' %}
-        {{ form.content.label }} {{ form.content }}
+    <form method="POST" action="/meals/{{meal_id}}/comments/new">
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+            {{ field.label }} {{ field }}
+        {% endfor %}
         <input type="submit" value="Submit">
     </form>
-    <form action="//meal_plans/new" method="get">
+    <form action="/meal_plans/new" method="get">
         <input type="submit" value="Make A Meal Plan!">
     </form>
     <form action="/logout">
         <input type="submit" value="Logout">
+    </form>
 {% endblock %}

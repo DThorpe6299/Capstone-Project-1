@@ -56,10 +56,12 @@ class LoginForm(ModelForm):
     password = PasswordField(validators=[ InputRequired()])
 
 class MealPlanForm(FlaskForm):
-    diet = SelectField('Diet', choices=DIET_CHOICES, validators=[DataRequired()])
-    timeframe = SelectField('Timeframe', choices=[('day', 'Day'), ('week', 'Week')], validators=[DataRequired()])
-    target_calories = IntegerField('Target Calories', validators=[DataRequired()])
-    exclude = TextAreaField('Exclude')
+        class Meta:
+            model=MealPlan
+        diet = SelectField('Diet', choices=DIET_CHOICES, validators=[DataRequired()])
+        timeframe = SelectField('Timeframe', choices=[('day', 'Day'), ('week', 'Week')], validators=[DataRequired()])
+        target_calories = IntegerField('Target Calories', validators=[DataRequired()])
+        exclude = TextAreaField('Exclude')
 
 class CommentForm(ModelForm):
     class Meta:

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %} Here's Your Meal Plan! {% endblock %}
+{% block content %}
+    <h1>Generated Meal Plan</h1>
+    <form action="/meal_plans/new" method="get">
+        <input type="submit" value="Make A Meal Plan!">
+    </form>
+    <form action="/logout">
+        <input type="submit" value="Logout">
+    </form>
+
+    {% for day, day_data in meals.items() %}
+        <h2>{{ day }}</h2>
+        <ul>
+            {% for meal in day_data['meals'] %}
+                <li>
+                    <h3>{{ meal['title'] }}</h3>
+                    <p>Source URL: <a href="{{ meal['sourceUrl'] }}">{{ meal['title'] }}</a></p>
+                    <p>Ready In Minutes: {{ meal['readyInMinutes'] }}</p>
+                    <p>Servings: {{ meal['servings'] }}</p>
+                    <form method="GET" action="/meals/{{meal_id}}/comments/new">
+                        <input type="submit" name="Submit" id="make-new-comment" value="Comment">
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Nutrients</h3>
+        <p>Calories: {{ day_data['nutrients']['calories'] }}</p>
+        <p>Protein: {{ day_data['nutrients']['protein'] }}</p>
+        <p>Fat: {{ day_data['nutrients']['fat'] }}</p>
+        <p>Carbohydrates: {{ day_data['nutrients']['carbohydrates'] }}</p>
+    {% endfor %}
+    <form method="POST" action="/meal_plans/{{ day }}/delete">
+        <input type="submit" value="Delete Meal Plan">
+    </form>
+    <form action="GET" action="/users/{{user_id}}">
+        <input type="submit" value="See Your Meal Plans">
+    </form>
+{% endblock %}

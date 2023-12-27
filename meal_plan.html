@@ -1,16 +1,26 @@
 {% extends 'base.html' %}
 {% block title %}Meal Plan Details{% endblock %}
 {% block content %}
-    <h1>Meal Plan Details</h1>
-    <p>User ID: {{ meal_plan.user_id }}</p>
-    <p>Meal ID: {{ meal_plan.meal_id }}</p>
-    <p>Diet: {{ meal_plan.diet_name }}</p>
-    <form method="POST" action="/meal_plan/{{int:meal_plan_id}}/delete">
+    <p>Username: {{ username }}</p>
+    <p>Meal Plan ID: {{ meal_plan.meal_id }}</p>
+    <p>Diet: {{ meal_plan.diet | capitalize }}</p>
+
+    <!-- Display Nutrients -->
+    <p>Nutrients:</p>
+    <ul>
+        <li>Calories: {{ nutrients.calories }}</li>
+        <li>Protein: {{ nutrients.protein }}</li>
+        <li>Fat: {{ nutrients.fat }}</li>
+        <li>Carbohydrates: {{ nutrients.carbohydrates }}</li>
+    </ul>
+
+    <form method="POST" action="/meal_plans/{{ meal_plan_id }}/delete">
         <input type="submit" value="Delete">
     </form>
-    <form action="//meal_plans/new" method="get">
+    <form action="/meal_plans/new" method="get">
         <input type="submit" value="Make A Meal Plan!">
     </form>
     <form action="/logout">
         <input type="submit" value="Logout">
+    </form>
 {% endblock %}
