@@ -11,11 +11,11 @@
     <ul>
         {% for meal in meals %}
             <li>
-                <h3>{{ meal['title'] }}</h3>
-                <p>Source URL: <a href="{{ meal['sourceUrl'] }}">{{ meal['title'] }}</a></p>
-                <p>Ready In Minutes: {{ meal['readyInMinutes'] }}</p>
-                <p>Servings: {{ meal['servings'] }}</p>
-                <form method="GET" action="/meals/{{meal_id}}/comments/new">
+                <h3>{{ meal.title }}</h3>
+                <p>Source URL: <a href="{{  meal.source_url  }}">{{ meal.title }}</a></p>
+                <p>Ready In Minutes: {{ meal.ready_in_minutes }}</p>
+                <p>Servings: {{ meal.servings }}</p>
+                <form method="GET" action="/meals/{{meal.id}}/comments/new">
                     <input type="submit" name="Submit" id="make-new-comment" value="Comment">
                 </form>
             </li>
@@ -23,15 +23,15 @@
     </ul>
     <h3>Nutrients</h3>
     <ul>
-        <li>Calories: {{ nutrients['calories'] }}</li>
-        <li>Protein: {{ nutrients['protein'] }}</li>
-        <li>Fat: {{ nutrients['fat'] }}</li>
-        <li>Carbohydrates: {{ nutrients['carbohydrates'] }}</li>
+        <li>Calories: {{ calories }}</li>
+        <li>Protein: {{ protein }}</li>
+        <li>Fat: {{ fat }}</li>
+        <li>Carbohydrates: {{ carbohydrates }}</li>
     </ul>
-    <form method="POST" action="/meal_plans/{{ day }}/delete">
+    <form method="POST" action="/meal_plans/{{ meal_plan_id }}/delete">
         <input type="submit" value="Delete Meal Plan">
     </form>
-    <form action="GET" action="/users/{{int:user_id}}">
+    <form method="GET" action="/users/{{user_id}}">
         <input type="submit" value="See Your Meal Plans">
     </form>
 {% endblock %}

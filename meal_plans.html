@@ -5,7 +5,7 @@
         {% for plan in meal_plans %}
             <li>
                 <a href="/meal_plans/{{ plan.id }}">
-                    Username: {{ username }} - Meal Plan ID: {{ plan.meal_id }} - Diet: {{ plan.diet }}
+                    Username: {{ username }} - Meal Plan ID: {{ plan.id }} - Diet: {{ plan.diet }}
                 </a>
                 <form method="POST" action="/meal_plans/{{ plan.id }}/delete">
                     <input type="submit" value="Delete">

@@ -48,12 +48,10 @@ class EditUserForm(ModelForm):
     username = StringField(validators=[Unique(User.username), InputRequired()])
     email = StringField(validators=[Unique(User.email), InputRequired()])
 
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
 
-class LoginForm(ModelForm):
-    class Meta:
-        model=User
-    username = StringField(validators=[Unique(User.username), InputRequired()])
-    password = PasswordField(validators=[ InputRequired()])
 
 class MealPlanForm(FlaskForm):
         class Meta:

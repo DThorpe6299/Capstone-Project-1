@@ -9,32 +9,33 @@
         <input type="submit" value="Logout">
     </form>
 
-    {% for day, day_data in meals.items() %}
-        <h2>{{ day }}</h2>
+    {% for day, day_meals in meal_obj.items() %}
+        <h2>{{ day.value }}</h2>
         <ul>
-            {% for meal in day_data['meals'] %}
+            {% for meal in day_meals %}
                 <li>
-                    <h3>{{ meal['title'] }}</h3>
-                    <p>Source URL: <a href="{{ meal['sourceUrl'] }}">{{ meal['title'] }}</a></p>
-                    <p>Ready In Minutes: {{ meal['readyInMinutes'] }}</p>
-                    <p>Servings: {{ meal['servings'] }}</p>
-                    <form method="GET" action="/meals/{{meal_id}}/comments/new">
+                    <h3>{{ meal.title }}</h3>
+                    <p>Source URL: <a href="{{ meal.source_url }}">{{ meal.title }}</a></p>
+                    <p>Ready In Minutes: {{ meal.ready_in_minutes }}</p>
+                    <p>Servings: {{ meal.servings }}</p>
+                    <form method="GET" action="/meals/{{ meal.id }}/comments/new">
                         <input type="submit" name="Submit" id="make-new-comment" value="Comment">
                     </form>
                 </li>
             {% endfor %}
         </ul>
-
-        <h3>Nutrients</h3>
-        <p>Calories: {{ day_data['nutrients']['calories'] }}</p>
-        <p>Protein: {{ day_data['nutrients']['protein'] }}</p>
-        <p>Fat: {{ day_data['nutrients']['fat'] }}</p>
-        <p>Carbohydrates: {{ day_data['nutrients']['carbohydrates'] }}</p>
     {% endfor %}
-    <form method="POST" action="/meal_plans/{{ day }}/delete">
+
+    <h3>Meal Plan Nutrients</h3>
+    <p>Calories: {{ meal_plan.calories }}</p>
+    <p>Protein: {{ meal_plan.protein }}</p>
+    <p>Fat: {{ meal_plan.fat }}</p>
+    <p>Carbohydrates: {{ meal_plan.carbohydrates }}</p>
+
+    <form method="POST" action="/meal_plans/{{ meal_plan_id }}/delete">
         <input type="submit" value="Delete Meal Plan">
     </form>
-    <form action="GET" action="/users/{{user_id}}">
+    <form action="get" action="/users/{{ user_id }}">
         <input type="submit" value="See Your Meal Plans">
     </form>
 {% endblock %}

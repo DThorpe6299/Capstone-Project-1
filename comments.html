@@ -4,6 +4,7 @@
 
 {% block content %}
     {% for comment in comments %}
+        <a href="/comments/{{comment.id}}"><h2>Check this one out!</h2></a>
         <div class="comment">
             <p>{{ comment.content }}</p>
             <form method="POST" action="/comments/{{comment_id}}/delete">
@@ -19,3 +20,4 @@
         <form action="/logout">
             <input type="submit" value="Logout">
     {% endfor %}
+{%endblock%}

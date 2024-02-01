@@ -1,19 +1,21 @@
 {% extends 'base.html' %}
-
-{% block title %} What did you think? {% endblock %}
+{% block title %}Reviews{% endblock %}
 
 {% block content %}
-    <form method="POST" action="/meals/{{meal_id}}/comments/new">
+    <h1>Leave your thoughts!</h1>
+    <form method="POST" action="/meals/{{ meal_id }}/comments/new">
         {{ form.hidden_tag() }}
-        {% for field in form if field.widget.input_type != 'hidden' %}
-            {{ field.label }} {{ field }}
-        {% endfor %}
-        <input type="submit" value="Submit">
-    </form>
-    <form action="/meal_plans/new" method="get">
-        <input type="submit" value="Make A Meal Plan!">
-    </form>
-    <form action="/logout">
-        <input type="submit" value="Logout">
+        <div class="form-group">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control") }}
+            {% if form.content.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.content.errors %}
+                        <span>{{ error }}</span><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 {% endblock %}

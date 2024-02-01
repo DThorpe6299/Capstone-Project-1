@@ -2,8 +2,8 @@
 
 {% block title %} Login! {% endblock %}
 {% block content %}
-    <form action="/meal_plans" method="POST">
-        {{ form.hidden_tag() }}
+    <form action="/login" method="POST">
+        {{ form.hidden_tag() and form.csrf_token }}
         <div>
             {{ form.username.label }}
             {{ form.username(size=32) }}
