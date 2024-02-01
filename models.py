@@ -94,6 +94,7 @@ class MealPlan(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'))
     diet = db.Column(db.String(70), nullable=True)
     timeframe = db.Column(db.Enum('day', 'week', name='timeframe'), nullable=False)
     target_calories = db.Column(db.Integer, nullable=False)
